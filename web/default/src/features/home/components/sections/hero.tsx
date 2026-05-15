@@ -95,7 +95,7 @@ export function Hero(props: HeroProps) {
                                                                             >
                                                               {t('View Pricing')}
                                                             </Button>
-                                              </>>
+                                              </>
                                             )}
                       </div>
               </div>
