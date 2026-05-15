@@ -31,8 +31,7 @@ jobs:
           context: .
           platforms: linux/amd64
           push: true
+          no-cache: true
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/new-api:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/new-api:${{ github.sha }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
