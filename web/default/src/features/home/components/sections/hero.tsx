@@ -59,14 +59,14 @@ export function Hero(props: HeroProps) {
                                 <br />
                                 <span className='bg-gradient-to-r from-blue-400 via-violet-400 to-purple-500 bg-clip-text text-transparent'>
                                   {t('Always On.')}
-                                </span>span>
-                      </h1>h1>
+                                </span>
+                      </h1>
                       <p
                                   className='landing-animate-fade-up text-muted-foreground/80 mt-5 max-w-lg text-base leading-relaxed opacity-0 md:text-lg'
                                   style={{ animationDelay: '80ms' }}
                                 >
                         {t('Access Claude, DeepSeek, Kimi, and 10+ AI models through a single API — with crypto payment support.')}
-                      </p>p>
+                      </p>
                       <div
                                   className='landing-animate-fade-up mt-8 flex items-center gap-3 opacity-0'
                                   style={{ animationDelay: '160ms' }}
@@ -78,7 +78,7 @@ export function Hero(props: HeroProps) {
                                                             >
                                                 {t('Go to Dashboard')}
                                                             <ArrowRight className='ml-1 size-3.5 transition-transform duration-200 group-hover:translate-x-0.5' />
-                                              </Button>Button>
+                                              </Button>
                                             ) : (
                                               <>
                                                             <Button
@@ -87,25 +87,25 @@ export function Hero(props: HeroProps) {
                                                                             >
                                                               {t('Get Started Free')}
                                                                             <ArrowRight className='ml-1 size-3.5 transition-transform duration-200 group-hover:translate-x-0.5' />
-                                                            </Button>Button>
+                                                            </Button>
                                                             <Button
                                                                               variant='outline'
                                                                               className='border-border/50 hover:border-border hover:bg-muted/50 rounded-lg'
                                                                               render={<Link to='/pricing' />}
                                                                             >
                                                               {t('View Pricing')}
-                                                            </Button>Button>
+                                                            </Button>
                                               </>>
                                             )}
-                      </div>div>
-              </div>div>
+                      </div>
+              </div>
         
               <div
                         className='landing-animate-fade-up w-full opacity-0'
                         style={{ animationDelay: '300ms' }}
                       >
                       <HeroTerminalDemo />
-              </div>div>
-        </section>section>
+              </div>
+        </section>
       )
 }</></section>
