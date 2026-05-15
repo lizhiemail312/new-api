@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { Settings, Zap, BarChart3 } from 'lucide-react'
+import { UserPlus, CreditCard, Zap } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AnimateInView } from '@/components/animate-in-view'
 
@@ -26,25 +26,27 @@ export function HowItWorks() {
   const steps = [
     {
       num: '1',
-      title: t('Configure'),
+      title: t('Sign Up'),
       desc: t(
-        'Add your API keys, set up channels and configure access permissions'
+        'Create your free account in under a minute — no credit card required.'
       ),
-      icon: <Settings className='size-6' strokeWidth={1.5} />,
+      icon: <UserPlus className='size-6' strokeWidth={1.5} />,
     },
     {
       num: '2',
-      title: t('Connect'),
+      title: t('Top Up'),
       desc: t(
-        'Connect through OpenAI, Claude, Gemini, and other compatible API routes'
+        'Add credits via credit card or crypto (USDT/USDC). Your balance never expires.'
       ),
-      icon: <Zap className='size-6' strokeWidth={1.5} />,
+      icon: <CreditCard className='size-6' strokeWidth={1.5} />,
     },
     {
       num: '3',
-      title: t('Monitor'),
-      desc: t('Track usage, costs and performance with real-time analytics'),
-      icon: <BarChart3 className='size-6' strokeWidth={1.5} />,
+      title: t('Start Calling'),
+      desc: t(
+        'Point any OpenAI-compatible app at api.apibay.ai. Claude, DeepSeek, Kimi, Grok, and 10+ models ready instantly.'
+      ),
+      icon: <Zap className='size-6' strokeWidth={1.5} />,
     },
   ]
 
