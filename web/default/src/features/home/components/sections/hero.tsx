@@ -108,4 +108,4 @@ export function Hero(props: HeroProps) {
               </div>
         </section>
       )
-}</></section>
+}
