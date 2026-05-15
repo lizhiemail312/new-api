@@ -24,7 +24,7 @@ import {
   Gauge,
   DollarSign,
   Users,
-  HeartHandshake,
+  Wallet,
 } from 'lucide-react'
 import { useTranslation } from 'react-i18next'
 import { AnimateInView } from '@/components/animate-in-view'
@@ -48,7 +48,7 @@ export function Features(_props: FeaturesProps) {
       icon: <Zap className='size-4 text-blue-400' />,
       visual: (
         <div className='mt-4 grid grid-cols-3 gap-2'>
-          {['OpenAI', 'Claude', 'Gemini', 'DeepSeek', 'Qwen', 'Llama'].map(
+          {['Claude', 'DeepSeek', 'Kimi', 'Grok', 'Qwen', 'Gemini'].map(
             (name) => (
               <div
                 key={name}
@@ -172,9 +172,9 @@ export function Features(_props: FeaturesProps) {
       desc: t('Multi-user management with flexible permission allocation'),
     },
     {
-      icon: <HeartHandshake className='size-5' strokeWidth={1.5} />,
-      title: t('Open Source'),
-      desc: t('Community driven, self-hosted, and extensible'),
+      icon: <Wallet className='size-5' strokeWidth={1.5} />,
+      title: t('Crypto Payments'),
+      desc: t('Pay with USDT or USDC — no credit card needed. Perfect for users in regions with payment restrictions.'),
     },
   ]
 
