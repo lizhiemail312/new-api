@@ -99,7 +99,7 @@ function parseHeaderNavModules(
  *   console: true,
  *   pricing: { enabled: true, requireAuth: false },
  *   rankings: { enabled: true, requireAuth: false },
- *   docs: true,
+ *   docs: true,   // only shown if docs_link points to a truly external domain
  *   about: true
  * }
  */
@@ -115,6 +115,9 @@ export function useTopNavLinks(): TopNavLink[] {
 
   // Documentation link (may be external)
   const docsLink: string | undefined = status?.docs_link as string | undefined
+
+  // Server address (used to detect self-referential docs links that would 404)
+  const serverAddress: string = (status?.server_address as string) || ''
 
   const isAuthed = !!auth?.user
 
@@ -144,13 +147,15 @@ export function useTopNavLinks(): TopNavLink[] {
     links.push({ title: t('Rankings'), href: '/rankings', disabled })
   }
 
-  // Docs (supports external links)
-  if (modules?.docs !== false) {
-    if (docsLink) {
-      links.push({ title: t('Docs'), href: docsLink, external: true })
-    } else {
-      links.push({ title: t('Docs'), href: '/docs' })
-    }
+  // Docs: only show if a truly external docs link is configured
+  // (skip self-referential links pointing to own server — likely a placeholder 404)
+  const isExternalDocsLink =
+    docsLink &&
+    docsLink.startsWith('http') &&
+    serverAddress &&
+    !docsLink.startsWith(serverAddress)
+  if (modules?.docs !== false && isExternalDocsLink) {
+    links.push({ title: t('Docs'), href: docsLink!, external: true })
   }
 
   // About
