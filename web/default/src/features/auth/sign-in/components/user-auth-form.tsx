@@ -282,16 +282,18 @@ export function UserAuthForm({
         className={cn('grid gap-4', className)}
         {...props}
       >
-        {/* Username Field */}
+        {/* Email Field */}
         <FormField
           control={form.control}
           name='username'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('Username or Email')}</FormLabel>
+              <FormLabel>{t('Email')}</FormLabel>
               <FormControl>
                 <Input
-                  placeholder={t('Enter your username or email')}
+                  placeholder={t('name@example.com')}
+                  type='email'
+                  autoComplete='email'
                   {...field}
                 />
               </FormControl>
