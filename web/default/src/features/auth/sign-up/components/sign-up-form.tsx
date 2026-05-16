@@ -55,6 +55,14 @@ import { useEmailVerification } from '@/features/auth/hooks/use-email-verificati
 import { useTurnstile } from '@/features/auth/hooks/use-turnstile'
 import { getAffiliateCode } from '@/features/auth/lib/storage'
 
+/** Derive a username from an email address, e.g. "alice@example.com" → "alice_a1b2" */
+function usernameFromEmail(email: string): string {
+  const local = email.split('@')[0] ?? 'user'
+  const safe = local.replace(/[^a-zA-Z0-9_]/g, '_').slice(0, 16)
+  const suffix = Math.random().toString(36).slice(2, 6)
+  return `${safe}_${suffix}`
+}
+
 export function SignUpForm({
   className,
   ...props
@@ -90,7 +98,6 @@ export function SignUpForm({
   const form = useForm<z.infer<typeof registerFormSchema>>({
     resolver: zodResolver(registerFormSchema),
     defaultValues: {
-      username: '',
       email: '',
       password: '',
       confirmPassword: '',
@@ -98,7 +105,8 @@ export function SignUpForm({
   })
 
   const emailValue = form.watch('email')
-  const emailVerificationRequired = !!status?.email_verification
+  // Email verification is always required in APiBay
+  const emailVerificationEnabled = !!status?.email_verification
   const hasUserAgreement = Boolean(status?.user_agreement_enabled)
   const hasPrivacyPolicy = Boolean(status?.privacy_policy_enabled)
   const requiresLegalConsent = hasUserAgreement || hasPrivacyPolicy
@@ -136,24 +144,18 @@ export function SignUpForm({
       return
     }
 
-    // Validate email verification if required
-    if (emailVerificationRequired) {
-      if (!data.email) {
-        toast.error(t('Please enter your email'))
-        return
-      }
-      if (!verificationCode) {
-        toast.error(t('Please enter the verification code'))
-        return
-      }
+    // When backend email verification is enabled, code is mandatory
+    if (emailVerificationEnabled && !verificationCode) {
+      toast.error(t('Please enter the verification code'))
+      return
     }
 
     setIsLoading(true)
     try {
       const res = await register({
-        username: data.username,
+        username: usernameFromEmail(data.email),
         password: data.password,
-        email: data.email || undefined,
+        email: data.email,
         verification_code: verificationCode || undefined,
         aff: getAffiliateCode(),
         turnstile: turnstileToken,
@@ -171,7 +173,12 @@ export function SignUpForm({
   }
 
   async function handleSendVerificationCode() {
-    await sendCode(emailValue || '')
+    const email = emailValue?.trim()
+    if (!email) {
+      toast.error(t('Please enter your email first'))
+      return
+    }
+    await sendCode(email)
   }
 
   const handleOpenWeChatDialog = () => {
@@ -179,7 +186,6 @@ export function SignUpForm({
       toast.error(legalConsentErrorMessage)
       return
     }
-
     setIsWeChatDialogOpen(true)
   }
 
@@ -221,20 +227,69 @@ export function SignUpForm({
         className={cn('grid gap-4', className)}
         {...props}
       >
-        {/* Username Field */}
+        {/* Email Field — primary identifier */}
         <FormField
           control={form.control}
-          name='username'
+          name='email'
           render={({ field }) => (
             <FormItem>
-              <FormLabel>{t('Username')}</FormLabel>
+              <FormLabel>{t('Email')}</FormLabel>
               <FormControl>
-                <Input placeholder={t('Enter your username')} {...field} />
+                <Input
+                  placeholder={t('name@example.com')}
+                  type='email'
+                  autoComplete='email'
+                  {...field}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
+
+        {/* Email Verification Code — always shown */}
+        <div className='space-y-1.5'>
+          <Label>{t('Verification code')}</Label>
+          <div className='flex items-center gap-2'>
+            <Input
+              placeholder={t('Enter the code sent to your email')}
+              value={verificationCode}
+              onChange={(e) => setVerificationCode(e.target.value)}
+              autoComplete='one-time-code'
+              className='flex-1'
+            />
+            <Button
+              variant='outline'
+              type='button'
+              disabled={isLoading || isSendingCode || isActive || !emailValue}
+              onClick={handleSendVerificationCode}
+              className='shrink-0'
+            >
+              {isActive ? (
+                t('Resend ({{seconds}}s)', { seconds: secondsLeft })
+              ) : isSendingCode ? (
+                <Loader2 className='h-4 w-4 animate-spin' />
+              ) : (
+                t('Send code')
+              )}
+            </Button>
+          </div>
+          {!emailVerificationEnabled && (
+            <p className='text-muted-foreground text-xs'>
+              {t('Email verification is not enabled. You may leave this blank.')}
+            </p>
+          )}
+        </div>
+
+        {/* Turnstile */}
+        {isTurnstileEnabled && (
+          <div className='mt-1'>
+            <Turnstile
+              siteKey={turnstileSiteKey}
+              onVerify={setTurnstileToken}
+            />
+          </div>
+        )}
 
         {/* Password Field */}
         <FormField
@@ -269,67 +324,6 @@ export function SignUpForm({
           )}
         />
 
-        {/* Email Verification Section */}
-        {emailVerificationRequired && (
-          <>
-            {/* Email Field */}
-            <FormField
-              control={form.control}
-              name='email'
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    {t('Email (required for verification)')}
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder={t('name@example.com')}
-                      type='email'
-                      {...field}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Verification Code Field */}
-            <div className='flex items-end gap-2'>
-              <div className='flex-1'>
-                <Input
-                  placeholder={t('Verification code')}
-                  value={verificationCode}
-                  onChange={(e) => setVerificationCode(e.target.value)}
-                />
-              </div>
-              <Button
-                variant='outline'
-                type='button'
-                disabled={isLoading || isSendingCode || isActive || !emailValue}
-                onClick={handleSendVerificationCode}
-              >
-                {isActive ? (
-                  t('Resend ({{seconds}}s)', { seconds: secondsLeft })
-                ) : isSendingCode ? (
-                  <Loader2 className='h-4 w-4 animate-spin' />
-                ) : (
-                  t('Send code')
-                )}
-              </Button>
-            </div>
-
-            {/* Turnstile */}
-            {isTurnstileEnabled && (
-              <div className='mt-2'>
-                <Turnstile
-                  siteKey={turnstileSiteKey}
-                  onVerify={setTurnstileToken}
-                />
-              </div>
-            )}
-          </>
-        )}
-
         <LegalConsent
           status={status}
           checked={agreedToLegal}
@@ -337,7 +331,7 @@ export function SignUpForm({
           className='mt-1'
         />
 
-        {/* Submit Button */}
+        {/* Submit */}
         <Button
           type='submit'
           className='mt-2 w-full justify-center gap-2'
@@ -368,7 +362,7 @@ export function SignUpForm({
               <DialogTitle>{t('WeChat sign in')}</DialogTitle>
               <DialogDescription>
                 {t(
-                  'Scan the QR code to follow the official account and reply with “验证码” to receive your verification code.'
+                  'Scan the QR code to follow the official account and reply with "验证码" to receive your verification code.'
                 )}
               </DialogDescription>
             </DialogHeader>
