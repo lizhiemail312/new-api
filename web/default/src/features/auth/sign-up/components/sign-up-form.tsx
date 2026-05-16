@@ -65,8 +65,9 @@ function usernameFromEmail(email: string): string {
 
 export function SignUpForm({
   className,
+  onSuccess,
   ...props
-}: React.HTMLAttributes<HTMLFormElement>) {
+}: React.HTMLAttributes<HTMLFormElement> & { onSuccess?: () => void }) {
   const { t } = useTranslation()
   const [isLoading, setIsLoading] = useState(false)
   const [verificationCode, setVerificationCode] = useState('')
@@ -163,7 +164,11 @@ export function SignUpForm({
 
       if (res?.success) {
         toast.success(t('Account created! Please sign in'))
-        redirectToLogin()
+        if (onSuccess) {
+          onSuccess()
+        } else {
+          redirectToLogin()
+        }
       }
     } catch (_error) {
       // Errors are handled by global interceptor

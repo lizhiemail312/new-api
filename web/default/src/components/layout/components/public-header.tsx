@@ -16,7 +16,7 @@ along with this program. If not, see <https://www.gnu.org/licenses/>.
 
 For commercial licensing, please contact support@quantumnous.com
 */
-import { useState, useEffect } from 'react'
+import { useState, useEffect, lazy, Suspense } from 'react'
 import { Link, useRouterState } from '@tanstack/react-router'
 import { useTranslation } from 'react-i18next'
 import { useAuthStore } from '@/stores/auth-store'
@@ -34,6 +34,12 @@ import { ThemeSwitch } from '@/components/theme-switch'
 import { defaultTopNavLinks } from '../config/top-nav.config'
 import type { TopNavLink } from '../types'
 import { HeaderLogo } from './header-logo'
+
+const RegisterDialog = lazy(() =>
+  import('@/features/auth/components/register-dialog').then((m) => ({
+    default: m.RegisterDialog,
+  }))
+)
 
 export interface PublicHeaderProps {
   navLinks?: TopNavLink[]
@@ -67,6 +73,7 @@ export function PublicHeader(props: PublicHeaderProps) {
   const { t } = useTranslation()
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
+  const [registerOpen, setRegisterOpen] = useState(false)
   const { auth } = useAuthStore()
   const {
     systemName,
@@ -207,7 +214,7 @@ export function PublicHeader(props: PublicHeaderProps) {
                       <Button
                         size='sm'
                         className='h-8 rounded-lg px-3.5 text-xs font-medium'
-                        render={<Link to='/sign-up' />}
+                        onClick={() => setRegisterOpen(true)}
                       >
                         {t('Sign up')}
                       </Button>
@@ -302,13 +309,27 @@ export function PublicHeader(props: PublicHeaderProps) {
             style={{ transitionDelay: mobileOpen ? '250ms' : '0ms' }}
           >
             {showAuthButtons && (
-              <Link
-                to={isAuthenticated ? '/dashboard' : '/sign-in'}
-                onClick={() => setMobileOpen(false)}
-                className='bg-foreground text-background inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80'
-              >
-                {isAuthenticated ? t('Go to Dashboard') : t('Sign in')}
-              </Link>
+              <>
+                <Link
+                  to={isAuthenticated ? '/dashboard' : '/sign-in'}
+                  onClick={() => setMobileOpen(false)}
+                  className='bg-foreground text-background inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80'
+                >
+                  {isAuthenticated ? t('Go to Dashboard') : t('Sign in')}
+                </Link>
+                {!isAuthenticated && (
+                  <button
+                    type='button'
+                    onClick={() => {
+                      setMobileOpen(false)
+                      setRegisterOpen(true)
+                    }}
+                    className='border-foreground inline-flex h-10 items-center justify-center rounded-lg border text-sm font-medium transition-opacity hover:opacity-75 active:opacity-60'
+                  >
+                    {t('Sign up')}
+                  </button>
+                )}
+              </>
             )}
           </div>
         </div>
@@ -326,6 +347,16 @@ export function PublicHeader(props: PublicHeaderProps) {
           loading={notifications.loading}
           onCloseToday={notifications.closeToday}
         />
+      )}
+
+      {/* Register Dialog */}
+      {showAuthButtons && !isAuthenticated && (
+        <Suspense>
+          <RegisterDialog
+            open={registerOpen}
+            onOpenChange={setRegisterOpen}
+          />
+        </Suspense>
       )}
     </>
   )
