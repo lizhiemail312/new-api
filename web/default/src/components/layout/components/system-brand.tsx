@@ -60,7 +60,7 @@ export function SystemBrand(props: SystemBrandProps) {
         to='/'
         aria-label={t('Go to home')}
         className={cn(
-          'text-foreground inline-flex h-7 items-center gap-1.5 rounded-md px-1.5 text-sm font-medium transition-colors outline-none select-none',
+          'text-foreground inline-flex h-9 items-center gap-2 rounded-md px-1.5 text-base font-semibold transition-colors outline-none select-none',
           'hover:bg-accent focus-visible:ring-ring/40 focus-visible:ring-2'
         )}
       >
@@ -91,8 +91,8 @@ export function SystemBrand(props: SystemBrandProps) {
               className='size-full rounded-lg object-contain'
             />
           </div>
-          <div className='grid flex-1 text-start text-sm leading-tight group-data-[collapsible=icon]:hidden'>
-            <span className='truncate font-semibold'>{name}</span>
+          <div className='grid flex-1 text-start leading-tight group-data-[collapsible=icon]:hidden'>
+            <span className='truncate text-base font-bold'>{name}</span>
             <span className='truncate text-xs'>{version}</span>
           </div>
         </SidebarMenuButton>
