@@ -147,15 +147,18 @@ export function useTopNavLinks(): TopNavLink[] {
     links.push({ title: t('Rankings'), href: '/rankings', disabled })
   }
 
-  // Docs: only show if a truly external docs link is configured
-  // (skip self-referential links pointing to own server — likely a placeholder 404)
-  const isExternalDocsLink =
-    docsLink &&
-    docsLink.startsWith('http') &&
-    serverAddress &&
-    !docsLink.startsWith(serverAddress)
-  if (modules?.docs !== false && isExternalDocsLink) {
-    links.push({ title: t('Docs'), href: docsLink!, external: true })
+  // Docs: always show internal /docs page; fallback to external link if configured
+  if (modules?.docs !== false) {
+    const isExternalDocsLink =
+      docsLink &&
+      docsLink.startsWith('http') &&
+      serverAddress &&
+      !docsLink.startsWith(serverAddress)
+    if (isExternalDocsLink) {
+      links.push({ title: t('Docs'), href: docsLink!, external: true })
+    } else {
+      links.push({ title: t('Docs'), href: '/docs' })
+    }
   }
 
   // About
