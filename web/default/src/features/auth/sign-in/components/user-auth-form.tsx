@@ -64,6 +64,7 @@ import type { AuthFormProps } from '@/features/auth/types'
 export function UserAuthForm({
   className,
   redirectTo,
+  onSuccess,
   ...props
 }: AuthFormProps) {
   const { t } = useTranslation()
@@ -159,6 +160,7 @@ export function UserAuthForm({
 
         await handleLoginSuccess(res.data as { id?: number } | null, redirectTo)
         toast.success(t('Welcome back!'))
+        onSuccess?.()
       }
     } catch (_error) {
       // Errors are handled by global interceptor

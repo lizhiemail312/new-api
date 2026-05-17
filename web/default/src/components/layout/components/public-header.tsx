@@ -41,6 +41,12 @@ const RegisterDialog = lazy(() =>
   }))
 )
 
+const LoginDialog = lazy(() =>
+  import('@/features/auth/components/login-dialog').then((m) => ({
+    default: m.LoginDialog,
+  }))
+)
+
 export interface PublicHeaderProps {
   navLinks?: TopNavLink[]
   mobileLinks?: TopNavLink[]
@@ -74,6 +80,7 @@ export function PublicHeader(props: PublicHeaderProps) {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const [registerOpen, setRegisterOpen] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
   const { auth } = useAuthStore()
   const {
     systemName,
@@ -207,7 +214,7 @@ export function PublicHeader(props: PublicHeaderProps) {
                         size='sm'
                         variant='outline'
                         className='h-8 rounded-lg px-3.5 text-xs font-medium'
-                        render={<Link to='/sign-in' />}
+                        onClick={() => setLoginOpen(true)}
                       >
                         {t('Sign in')}
                       </Button>
@@ -310,13 +317,26 @@ export function PublicHeader(props: PublicHeaderProps) {
           >
             {showAuthButtons && (
               <>
-                <Link
-                  to={isAuthenticated ? '/dashboard' : '/sign-in'}
-                  onClick={() => setMobileOpen(false)}
-                  className='bg-foreground text-background inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80'
-                >
-                  {isAuthenticated ? t('Go to Dashboard') : t('Sign in')}
-                </Link>
+                {isAuthenticated ? (
+                  <Link
+                    to='/dashboard'
+                    onClick={() => setMobileOpen(false)}
+                    className='bg-foreground text-background inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80'
+                  >
+                    {t('Go to Dashboard')}
+                  </Link>
+                ) : (
+                  <button
+                    type='button'
+                    onClick={() => {
+                      setMobileOpen(false)
+                      setLoginOpen(true)
+                    }}
+                    className='bg-foreground text-background inline-flex h-10 items-center justify-center rounded-lg text-sm font-medium transition-opacity hover:opacity-90 active:opacity-80'
+                  >
+                    {t('Sign in')}
+                  </button>
+                )}
                 {!isAuthenticated && (
                   <button
                     type='button'
@@ -349,12 +369,24 @@ export function PublicHeader(props: PublicHeaderProps) {
         />
       )}
 
-      {/* Register Dialog */}
+      {/* Auth Dialogs */}
       {showAuthButtons && !isAuthenticated && (
         <Suspense>
+          <LoginDialog
+            open={loginOpen}
+            onOpenChange={setLoginOpen}
+            onSignUpClick={() => {
+              setLoginOpen(false)
+              setRegisterOpen(true)
+            }}
+          />
           <RegisterDialog
             open={registerOpen}
             onOpenChange={setRegisterOpen}
+            onSignInClick={() => {
+              setRegisterOpen(false)
+              setLoginOpen(true)
+            }}
           />
         </Suspense>
       )}
