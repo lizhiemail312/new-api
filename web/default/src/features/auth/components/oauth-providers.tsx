@@ -99,7 +99,10 @@ export function OAuthProviders({
 
   if (status?.oidc_enabled) {
     const endpoint = status?.oidc_authorization_endpoint ?? ''
-    const isGoogle = endpoint.includes('accounts.google.com')
+    const clientId = status?.oidc_client_id ?? ''
+    const isGoogle =
+      endpoint.includes('accounts.google.com') ||
+      clientId.endsWith('.apps.googleusercontent.com')
     providerButtons.push({
       key: 'oidc',
       label: isGoogle ? t('Continue with Google') : t('Continue with OIDC'),
